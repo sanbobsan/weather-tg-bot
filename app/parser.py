@@ -115,6 +115,9 @@ def compile_weather_data(weather_data, location_info):
     Возвращает многострочную строку с отчетом
     """
 
+    if not weather_data:
+        return None
+    
     current = weather_data["current"]
     daily = weather_data["daily"]
     
@@ -165,4 +168,9 @@ def build_weather_report(address: str):
     location = geocode_with_dadata(address, DADATA_API_KEY, DADATA_SECRET_KEY)
     weather = get_weather(location["latitude"], location["longitude"])
 
-    return compile_weather_data(weather, location)
+    weather_data = compile_weather_data(weather, location)
+
+    if not weather_data:
+        return None
+    return weather_data
+

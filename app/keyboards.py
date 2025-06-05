@@ -6,8 +6,3 @@ to_menu = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Меню')]],
 
 menu = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Узнать погоду')]],
                             resize_keyboard = True,)
-
-choose_weather = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Погода на сегодня'),
-                                                KeyboardButton(text='Погода на вчера'),
-                                                KeyboardButton(text='Погода на неделю')]],
-                                                resize_keyboard = True,)
