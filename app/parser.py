@@ -157,14 +157,12 @@ def compile_weather_data(weather_data, location_info):
     return "\n".join(result)
 
 
-def build_weather_report(address):
+def build_weather_report(address: str):
     """
     Возвращает готовый текст для сообщения
     """
 
-    address = "Санкт Петербург, проспект непокоренных"
     location = geocode_with_dadata(address, DADATA_API_KEY, DADATA_SECRET_KEY)
     weather = get_weather(location["latitude"], location["longitude"])
 
     return compile_weather_data(weather, location)
-

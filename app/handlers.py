@@ -1,36 +1,43 @@
 
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
-import app.keyboards as kb
+from app import keyboards as kb
+from app.parser import build_weather_report
+
 
 router = Router()
 
-class Find_weather(StatesGroup):
-    place = State()
+
+class Enter_location(StatesGroup):
+    location = State()
+
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     await message.answer('привет', reply_markup=kb.to_menu)
 
+
 @router.message(F.text.lower() == 'меню')
-async def cmd_menu(message: Message, state: FSMContext):
+async def menu(message: Message, state: FSMContext):
     await message.answer('Это меню, выберите что хотите)', reply_markup=kb.menu)
     await state.clear()
 
+
 @router.message(F.text.lower() == 'узнать погоду')
 async def find_weather(message: Message, state: FSMContext):
-    await state.set_state(Find_weather.place)
+    await state.set_state(Enter_location.location)
     await message.answer('Выберите место', reply_markup=kb.to_menu)
 
-@router.message(Find_weather.place)
-async def place(message: Message, state: FSMContext):
-    await state.update_data(place=message.text)
-    data = await state.get_data()
-    await message.answer(f'Ваше место: {data['place']}', reply_markup=kb.to_menu)
+
+@router.message(Enter_location.location)
+async def weather(message: Message, state: FSMContext):
+    await state.update_data(location=message.text)
+    location = (await state.get_data())['location']
+    text = build_weather_report(location)
+    await message.answer(text=text, reply_markup=kb.to_menu)
     await state.clear()
-    
 
