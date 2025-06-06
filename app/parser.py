@@ -27,21 +27,22 @@ async def geocode_with_dadata(address, api_key, secret_key):
                 response.raise_for_status()
                 data = await response.json()
 
-            if not data or not data[0]:
-                print("!!!Ошибка!!! \ndata = 0")
-                return None
-                
-            result = data[0]
-            return {
-                "latitude": result["geo_lat"],
-                "longitude": result["geo_lon"],
-                "address": result["result"]
-            }
+        if not data or not data[0]:
+            print("!!! Ошибка !!! \ndata = 0")
+            return None
+
+        result = data[0]
+        return {
+            "latitude": result["geo_lat"],
+            "longitude": result["geo_lon"],
+            "address": result["result"]
+        }
         
+    except aiohttp.ClientResponseError as e:
+        print("!!! Ошибка !!! Проверьте правильность API ключа и секретного ключа")
+        return None
     except aiohttp.ClientError as e:
-        print(f"!!!Ошибка!!! Не получилось получить координаты \n{e}")
-        if response.status_code == 403:
-            print("!!!Ошибка!!! \nПроверьте правильность API ключа и секретного ключа")
+        print(f"!!! Ошибка !!! Не получилось получить координаты \n{e}")
         return None
 
 
@@ -71,7 +72,7 @@ async def get_weather(latitude, longitude):
                 return await response.json()
             
     except aiohttp.ClientError as e:
-        print(f"!!!Ошибка!!! Не получилось получить погоду \n{e}")
+        print(f"!!! Ошибка !!! Не получилось получить погоду \n{e}")
         return None
 
 
@@ -171,10 +172,16 @@ async def build_weather_report(address: str):
     """
 
     location = await geocode_with_dadata(address, DADATA_API_KEY, DADATA_SECRET_KEY)
+    if not location:
+        print("!!! Ошибка !!! Не получилось получить координаты")
+        return "❌ Ошибка геокодирования"
+    
     weather = await get_weather(location["latitude"], location["longitude"])
+    if not weather:
+        return None
 
     weather_data = compile_weather_data(weather, location)
-
     if not weather_data:
         return None
+    
     return weather_data
