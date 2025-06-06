@@ -39,6 +39,7 @@ async def weather(message: Message, state: FSMContext):
     location = (await state.get_data())['location']
     text = await build_weather_report(location)
     await state.clear()
+
     if not text:
         text = "❌ Ошибка, укажите правильное место"
         await state.set_state(Enter_location.location)
