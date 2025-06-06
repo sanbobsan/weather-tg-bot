@@ -37,7 +37,7 @@ async def find_weather(message: Message, state: FSMContext):
 async def weather(message: Message, state: FSMContext):
     await state.update_data(location=message.text)
     location = (await state.get_data())['location']
-    text = build_weather_report(location)
+    text = await build_weather_report(location)
     await state.clear()
     if not text:
         text = "Ошибка, укажите правильное место"

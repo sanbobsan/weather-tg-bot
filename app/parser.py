@@ -1,14 +1,14 @@
 
-import requests
 import json
+import aiohttp
 from datetime import datetime
 
 from config import DADATA_API_KEY, DADATA_SECRET_KEY
 
 
-def geocode_with_dadata(address, api_key, secret_key):
+async def geocode_with_dadata(address, api_key, secret_key):
     """
-    Преобразует адрес в координаты с помощью DaData API
+    Асинхронно преобразует адрес в координаты с помощью DaData API
     - "latitude": широта,
     - "longitude": долгота,
     - "address": место
@@ -22,33 +22,37 @@ def geocode_with_dadata(address, api_key, secret_key):
     }
     
     try:
-        response = requests.post(url, headers=headers, data=json.dumps([address]))
-        response.raise_for_status()
-        data = response.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, data=json.dumps([address])) as response:
+                response.raise_for_status()
+                data = await response.json()
+
+            if not data or not data[0]:
+                print("!!!Ошибка!!! \ndata = 0")
+                return None
+                
+            result = data[0]
+            return {
+                "latitude": result["geo_lat"],
+                "longitude": result["geo_lon"],
+                "address": result["result"]
+            }
         
-        if not data or not data[0]:
-            print("!!!Ошибка!!! \ndata = 0")
-            return None
-            
-        result = data[0]
-        return {
-            "latitude": result["geo_lat"],
-            "longitude": result["geo_lon"],
-            "address": result["result"]
-        }
-        
-    except requests.exceptions.RequestException as e:
+    except aiohttp.ClientError as e:
         print(f"!!!Ошибка!!! Не получилось получить координаты \n{e}")
         if response.status_code == 403:
             print("!!!Ошибка!!! \nПроверьте правильность API ключа и секретного ключа")
         return None
 
 
-def get_weather(latitude, longitude):
+async def get_weather(latitude, longitude):
     """
-    Получает прогноз погоды по координатам через Open-Meteo API
+    Асинхронно получает прогноз погоды по координатам через Open-Meteo API
     """
     
+    if not latitude and not longitude:
+        return None
+
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": latitude,
@@ -61,11 +65,12 @@ def get_weather(latitude, longitude):
     }
     
     try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
-        
-    except requests.exceptions.RequestException as e:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                response.raise_for_status()
+                return await response.json()
+            
+    except aiohttp.ClientError as e:
         print(f"!!!Ошибка!!! Не получилось получить погоду \n{e}")
         return None
 
@@ -155,22 +160,21 @@ def compile_weather_data(weather_data, location_info):
         hour = hour_dt.strftime("%H:%M")
         temp = weather_data["hourly"]["temperature_2m"][i]
         code = weather_data["hourly"]["weather_code"][i]
-        result.append(f"  {hour}: {temp}°C, {decode_weathercode(code)}")
+        result.append(f"- {hour}: {temp}°C, {decode_weathercode(code)}")
     
     return "\n".join(result)
 
 
-def build_weather_report(address: str):
+async def build_weather_report(address: str):
     """
-    Возвращает готовый текст для сообщения
+    Асинхронно возвращает готовый текст для сообщения
     """
 
-    location = geocode_with_dadata(address, DADATA_API_KEY, DADATA_SECRET_KEY)
-    weather = get_weather(location["latitude"], location["longitude"])
+    location = await geocode_with_dadata(address, DADATA_API_KEY, DADATA_SECRET_KEY)
+    weather = await get_weather(location["latitude"], location["longitude"])
 
     weather_data = compile_weather_data(weather, location)
 
     if not weather_data:
         return None
     return weather_data
-
