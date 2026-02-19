@@ -16,19 +16,21 @@ class Enter_location(StatesGroup):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer("привет", reply_markup=kb.to_menu)
+    await message.answer(
+        "Привет, это бот для получения погоды!", reply_markup=kb.to_menu
+    )
 
 
 @router.message(F.text.lower() == "меню")
 async def menu(message: Message, state: FSMContext):
-    await message.answer("Это меню, выберите что хотите)", reply_markup=kb.menu)
+    await message.answer("Меню, здесь вы можете узнать погоду ", reply_markup=kb.menu)
     await state.clear()
 
 
 @router.message(F.text.lower() == "узнать погоду")
 async def find_weather(message: Message, state: FSMContext):
     await state.set_state(Enter_location.location)
-    await message.answer("Выберите место", reply_markup=kb.to_menu)
+    await message.answer("Введите адрес", reply_markup=kb.to_menu)
 
 
 @router.message(Enter_location.location)
@@ -39,6 +41,6 @@ async def weather(message: Message, state: FSMContext):
     await state.clear()
 
     if not text:
-        text = "❌ Ошибка, укажите правильное место"
+        text = "❌ Ошибка, укажите существующее место"
         await state.set_state(Enter_location.location)
     await message.answer(text=text, reply_markup=kb.to_menu)
