@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 
 from bot.handlers import router
 from config import config
+from in_terminal import start_in_terminal
 
 
 async def start_bot() -> None:
@@ -22,15 +23,11 @@ async def start_bot() -> None:
         print(f"!!! Ошибка !!! \n{e}")
 
 
-def start_in_terminal() -> None:
-    pass
-
-
 def main() -> None:
     if not config.RUN_IN_TERMINAL:
         asyncio.run(start_bot())
     else:
-        start_in_terminal()
+        asyncio.run(start_in_terminal())
 
 
 if __name__ == "__main__":
