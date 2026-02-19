@@ -1,25 +1,37 @@
-
 import asyncio
+from asyncio import CancelledError
+
 from aiogram import Bot, Dispatcher
 
-from app.handlers import router
-
-from config import TOKEN
-
-
-async def main():
-    bot = Bot(token=TOKEN)
-    dp = Dispatcher()
-    dp.include_router(router)
-    await dp.start_polling(bot)
+from bot.handlers import router
+from config import config
 
 
-if __name__ == '__main__':
+async def start_bot() -> None:
     try:
-        print('!!! Бот запущен !!!')
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print('!!! Бот выключен !!!')
+        print("!!! Бот запущен !!!")
+        bot = Bot(token=config.TOKEN)
+        dp = Dispatcher()
+        dp.include_router(router)
+        await dp.start_polling(bot)
+
+    except (KeyboardInterrupt, CancelledError):
+        print("!!! Бот выключен !!!")
+
     except Exception as e:
         print(f"!!! Ошибка !!! \n{e}")
 
+
+def start_in_terminal() -> None:
+    pass
+
+
+def main() -> None:
+    if not config.RUN_IN_TERMINAL:
+        asyncio.run(start_bot())
+    else:
+        start_in_terminal()
+
+
+if __name__ == "__main__":
+    main()

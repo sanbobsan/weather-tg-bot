@@ -1,5 +1,11 @@
+from decouple import config  # type: ignore
 
-TOKEN = "7548618565:AAGA7z5My06S6egY9EcLT6dTIrdnxdCgCwM"
 
-DADATA_API_KEY = "fed65a6a991ebbadc8de6d24278c272513eb80c6"
-DADATA_SECRET_KEY = "7f5fabc148dfc22be9109fee482d0aea33af2638"
+class Config:
+    RUN_IN_TERMINAL: bool = config("TERMINAL", default=False)
+    "Если указатиь True, то будет запущен в терминале"
+    if not RUN_IN_TERMINAL:
+        TOKEN: str = config("TOKEN")
+
+
+config = Config
