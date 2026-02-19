@@ -1,0 +1,19 @@
+# python byte code
+**/__pycache__
+**/*.py[cod]
+# mypy
+**/.mypy_cache
+# python venv
+**/.venv
+**/*.in
+# env vars
+**/.env
+**/.env.example
+# git
+**/.git
+**/.gitignore
+# docker
+**/.dockerignore
+**/Dockerfile
+# docs
+**/README.md
