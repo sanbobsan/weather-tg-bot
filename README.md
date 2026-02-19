@@ -1,11 +1,11 @@
 # 🌤 Telegram Weather Bot
 
-Простой Telegram бот для получения актуальной погоды на планете Земля.
+Простой Telegram бот для получения актуальной погоды на планете Земля
 
 ## 🚀 Возможности
 
 - Почасовая температура и описание погоды на сегодня
-- Поддержка любого адреса, места
+- Поддержка любого адреса/места (геокодирование)
 
 ## 🛠 Использование
 
@@ -15,24 +15,37 @@
    pip install -r requirements.txt
    ```
 
+   - aiohttp
+   - aiogram
+   - python-decouple
+
 2. **Переменные окружения (`.env`):**
 
    ```env
-   TERMINAL=true_or_false
    TOKEN=your_telegram_bot_token
+   ```
+
+   так же, есть режим работы в терминале (без бота и токена):
+
+   ```env
+   TERMINAL=true
    ```
 
 3. **Запуcк бота:**
 
    ```bash
-   TOKEN=your_telegram_bot_token python main.py
+   python main.py
    ```
 
-   так же, есть режим работы в терминале (без бота):
+## 🐳 Развёртывание в Docker
 
-   ```bash
-   TERMINAL=true python main.py
-   ```
+| Действие          | Режим        | Команда                                                              |
+| ----------------- | ------------ | -------------------------------------------------------------------- |
+| **Сборка образа** | —            | `docker build -t weather-tg-bot .`                                   |
+| **Запуск бота**   | В терминале  | `docker run -e TERMINAL=1 -i --name weather-tg-bot weather-tg-bot`   |
+| **Запуск бота**   | Телеграм бот | `docker run -d --env-file .env --name weather-tg-bot weather-tg-bot` |
+| **Остановка**     | —            | `docker stop weather-tg-bot`                                         |
+| **Удаление**      | —            | `docker rm weather-tg-bot`                                           |
 
 ## 🌐 Используемые API
 
